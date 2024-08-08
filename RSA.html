@@ -1,71 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSA Encryption & Decryption</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #14161a;
-            color: white;
-            text-align: center;
-            padding: 50px;
-        }
-        input[type="number"], input[type="text"] {
-            width: 200px;
-            padding: 10px;
-            margin: 10px;
-            border: none;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .encrypt-btn {
-            background-color: #2ecc71;
-            color: white;
-        }
-        .decrypt-btn {
-            background-color: #3498db;
-            color: white;
-        }
-        .reset-btn {
-            background-color: #e74c3c;
-            color: white;
-        }
-    </style>
+    <title>RSA Encryption and Decryption</title>
+    <link rel="stylesheet" href="stylesheet.css">
 </head>
 <body>
-    <h1>RSA Encryption & Decryption</h1>
-    <p>Where n is equal to n = p * q, so we add the values to p and q and then to n.<br>
-        p and q only prime number.
-    </p>
     <div>
-        <p>This is value n: <span id="value-n">3233</span></p>
-        <label for="p-value">Enter p value:</label>
-        <input type="number" id="p-value" value="61">
-        <br>
-        <label for="q-value">Enter q value:</label>
-        <input type="number" id="q-value" value="53">
-        <br>
-        <label for="e-value">Enter e value:</label>
-        <input type="number" id="e-value" value="17">
-        <br>
-        <input type="text" id="message" placeholder="Enter your message">
-        <br>
-        <button class="encrypt-btn" onclick="encryptMessage()">Encrypt</button>
-        <button class="decrypt-btn" onclick="decryptMessage()">Decrypt</button>
-        <button class="reset-btn" onclick="resetForm()">Reset</button>
+        <h2>RSA Encryption and Decryption</h2>
+        <div>
+            <label for="p-value">Prime Number p:</label>
+            <input type="number" id="p-value" value="43">
+        </div>
+        <div>
+            <label for="q-value">Prime Number q:</label>
+            <input type="number" id="q-value" value="59">
+        </div>
+        <div>
+            <label for="e-value">Public Exponent e:</label>
+            <input type="number" id="e-value" value="13">
+        </div>
+        <div>
+            <label for="message">Message:</label>
+            <textarea id="message"></textarea>
+        </div>
+        <div>
+            <button onclick="encryptMessage()">Encrypt</button>
+            <button onclick="decryptMessage()">Decrypt</button>
+            <button onclick="resetForm()">Reset</button>
+        </div>
+        <div>
+            <h3>Encrypted Message:</h3>
+            <div id="encrypted-message"></div>
+        </div>
+        <div>
+            <h3>Decrypted Message:</h3>
+            <div id="decrypted-message"></div>
+        </div>
+        <div>
+            <h3>Value of n:</h3>
+            <div id="value-n">2537</div>
+        </div>
     </div>
-    <div>
-        <p>Encrypted Message: <span id="encrypted-message"></span></p>
-        <p>Decrypted Message: <span id="decrypted-message"></span></p>
-    </div>
-    <script src="script.js"></script>
+
+    <script>
+        function modExp(base, exp, mod) {
+            let result = 1;
+            base = base % mod;
+            while (exp > 0) {
+                if (exp % 2 === 1) {
+                    result = (result * base) % mod;
+                }
+                exp = Math.floor(exp / 2);
+                base = (base * base) % mod;
+            }
+            return result;
+        }
+
+        function modInverse(e, phi) {
+            let m0 = phi, t, q;
+            let x0 = 0, x1 = 1;
+            if (phi === 1) return 0;
+            while (e > 1) {
+                q = Math.floor(e / phi);
+                t = phi;
+                phi = e % phi;
+                e = t;
+                t = x0;
+                x0 = x1 - q * x0;
+                x1 = t;
+            }
+            if (x1 < 0) x1 += m0;
+            return x1;
+        }
+
+        function lettersToNumber(letters) {
+            let first = letters.charCodeAt(0) - 'A'.charCodeAt(0); // Convert first letter
+            let second = letters.charCodeAt(1) - 'A'.charCodeAt(0); // Convert second letter
+            return first * 100 + second;
+        }
+
+        function numberToLetters(number) {
+            let first = String.fromCharCode(Math.floor(number / 100) + 'A'.charCodeAt(0));
+            let second = String.fromCharCode(number % 100 + 'A'.charCodeAt(0));
+            return first + second;
+        }
+
+        function encryptRSA(message, n, e) {
+            let encryptedBlocks = [];
+            for (let i = 0; i < message.length; i += 2) {
+                let block = message.substring(i, i + 2);
+                let numericValue = lettersToNumber(block);
+                let encryptedValue = modExp(numericValue, e, n);
+                encryptedBlocks.push(encryptedValue);
+            }
+            return encryptedBlocks;
+        }
+
+        function decryptRSA(encryptedBlocks, n, d) {
+            let decryptedMessage = "";
+            encryptedBlocks.forEach(block => {
+                let decryptedValue = modExp(block, d, n);
+                decryptedMessage += numberToLetters(decryptedValue);
+            });
+            return decryptedMessage;
+        }
+
+        function encryptMessage() {
+            const p = parseInt(document.getElementById('p-value').value);
+            const q = parseInt(document.getElementById('q-value').value);
+            const e = parseInt(document.getElementById('e-value').value);
+            const message = document.getElementById('message').value.toUpperCase();
+
+            const n = p * q;
+            if (n < 2525) {
+                document.getElementById('value-n').innerText = "N is too small. Please choose larger prime numbers.";
+                document.getElementById('encrypted-message').innerText = "";
+                return;
+            }
+            document.getElementById('value-n').innerText = n;
+
+            const encryptedMessage = encryptRSA(message, n, e);
+            document.getElementById('encrypted-message').innerText = encryptedMessage.join(" ");
+        }
+
+        function decryptMessage() {
+            const p = parseInt(document.getElementById('p-value').value);
+            const q = parseInt(document.getElementById('q-value').value);
+            const e = parseInt(document.getElementById('e-value').value);
+            const encrypted = document.getElementById('encrypted-message').innerText.split(" ").map(Number);
+
+            const n = p * q;
+            if (n < 2525) {
+                document.getElementById('decrypted-message').innerText = "N is too small. Cannot decrypt.";
+                return;
+            }
+            const phi = (p - 1) * (q - 1);
+            const d = modInverse(e, phi);
+
+            const decryptedMessage = decryptRSA(encrypted, n, d);
+            document.getElementById('decrypted-message').innerText = decryptedMessage;
+        }
+
+        function resetForm() {
+            document.getElementById('p-value').value = 43;
+            document.getElementById('q-value').value = 59;
+            document.getElementById('e-value').value = 13;
+            document.getElementById('message').value = "";
+            document.getElementById('encrypted-message').innerText = "";
+            document.getElementById('decrypted-message').innerText = "";
+            document.getElementById('value-n').innerText = 2537;
+        }
+    </script>
 </body>
 </html>
