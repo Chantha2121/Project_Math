@@ -1,129 +1,150 @@
-function modExp(base, exp, mod) {
-    let result = 1;
-    base = base % mod;
-    while (exp > 0) {
-        if (exp % 2 === 1) {
-            result = (result * base) % mod;
-        }
-        exp = Math.floor(exp / 2);
-        base = (base * base) % mod;
-    }
-    return result;
+function sendMessage() {
+    var userInput = document.getElementById("user-input").value;
+    if (userInput.trim() === "") return;
+
+    // Display user's message
+    displayMessage(userInput, "user");
+
+    // Simulate bot response
+    var botResponse = getBotResponse(userInput);
+    typeMessage(botResponse, "bot");
+
+    // Clear the input
+    document.getElementById("user-input").value = "";
 }
 
-function modInverse(e, phi) {
-    let m0 = phi, t, q;
-    let x0 = 0, x1 = 1;
-    if (phi === 1) return 0;
-    while (e > 1) {
-        q = Math.floor(e / phi);
-        t = phi;
-        phi = e % phi;
-        e = t;
-        t = x0;
-        x0 = x1 - q * x0;
-        x1 = t;
-    }
-    if (x1 < 0) x1 += m0;
-    return x1;
-}
+function displayMessage(message, sender) {
+    var chatBox = document.getElementById("chat-box");
+    var messageElement = document.createElement("div");
+    messageElement.className = "message " + sender;
 
-function chunkString(str, size) {
-    const chunks = [];
-    for (let i = 0; i < str.length; i += size) {
-        chunks.push(str.slice(i, i + size));
-    }
-    return chunks;
-}
+    var imgElement = document.createElement("img");
+    imgElement.src = sender === "user" ? "./user.png" : "./chatbot.png";
 
-function strToNum(str) {
-    return str.split('').reduce((acc, char) => acc * 100 + char.charCodeAt(0), 0);
-}
+    var textElement = document.createElement("div");
+    textElement.className = "text";
 
-function numToStr(num) {
-    let str = '';
-    while (num > 0) {
-        const charCode = num % 100;
-        str = String.fromCharCode(charCode) + str;
-        num = Math.floor(num / 100);
-    }
-    return str;
-}
-
-function padNumber(num, length) {
-    return num.toString().padStart(length, '0');
-}
-
-function encryptMessage() {
-    const p = parseInt(document.getElementById('p-value').value);
-    const q = parseInt(document.getElementById('q-value').value);
-    const e = parseInt(document.getElementById('e-value').value);
-    const message = document.getElementById('message').value;
-
-    const n = p * q;
-    if (n < 2525) {
-        document.getElementById('value-n').innerText = "N is too small. Please choose larger prime numbers.";
-        document.getElementById('encrypted-message').innerText = "";
-        return;
-    }
-    document.getElementById('value-n').innerText = n;
-
-    const messageChunks = chunkString(message, 2);
-    const encryptedChunks = messageChunks.map(chunk => {
-        const chunkValue = strToNum(chunk);
-        return modExp(chunkValue, e, n);
+    // Split message by new lines and create new div for each line
+    const messageLines = message.split("\n");
+    messageLines.forEach((line) => {
+        const lineElement = document.createElement("div");
+        lineElement.innerText = line;
+        textElement.appendChild(lineElement);
     });
 
-    const encryptedMessage = "STOP " + encryptedChunks.map(num => padNumber(num, 4)).join(" ");
-    document.getElementById('encrypted-message').innerText = encryptedMessage;
-
-    // Count letters in the message
-    countLetters(message);
+    messageElement.appendChild(imgElement);
+    messageElement.appendChild(textElement);
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function decryptMessage() {
-    const p = parseInt(document.getElementById('p-value').value);
-    const q = parseInt(document.getElementById('q-value').value);
-    const e = parseInt(document.getElementById('e-value').value);
-    const encryptedText = document.getElementById('encrypted-message').innerText;
-    const encrypted = encryptedText.replace("STOP ", "").split(" ").map(Number);
+function getBotResponse(input) {
+    input = input.toLowerCase().trim();
+    const words = input.split(",");
 
-    const n = p * q;
-    if (n < 2525) {
-        document.getElementById('decrypted-message').innerText = "N is too small. Cannot decrypt.";
-        return;
-    }
-    const phi = (p - 1) * (q - 1);
-    const d = modInverse(e, phi);
-
-    const decryptedChunks = encrypted.map(num => {
-        const decryptedValue = modExp(num, d, n);
-        return numToStr(decryptedValue);
-    });
-
-    const decryptedMessage = decryptedChunks.join("");
-    document.getElementById('decrypted-message').innerText = decryptedMessage;
-}
-
-function resetForm() {
-    document.getElementById('p-value').value = 43;
-    document.getElementById('q-value').value = 59;
-    document.getElementById('e-value').value = 13;
-    document.getElementById('message').value = "";
-    document.getElementById('encrypted-message').innerText = "";
-    document.getElementById('decrypted-message').innerText = "";
-    document.getElementById('value-n').innerText = 2537;
-    document.getElementById('letter-count').innerText = "";
-}
-
-function countLetters(str) {
-    const letterCounts = Array.from({ length: 26 }, (_, i) => [String.fromCharCode(65 + i), 0]);
-    const upperStr = str.toUpperCase();
-    for (const char of upperStr) {
-        const charCode = char.charCodeAt(0);
-        if (charCode >= 65 && charCode <= 90) {
-            letterCounts[charCode - 65][1]++;
+    // Check for encryption command
+    if (words[0] === "encrypt" && words.length === 3) {
+        const textToEncrypt = words[1];
+        const shift = parseInt(words[2]);
+        if (!isNaN(shift)) {
+            return encryptCaesarCipher(textToEncrypt, shift);
+        } else {
+            return "Invalid shift value. Please provide a number.";
         }
     }
-    document.getElementById('letter-count').innerText = letterCounts.map(item => `${item[0]}: ${item[1]}`).join(', ');
+
+    // Check for decryption command
+    if (words[0] === "decrypt" && words.length === 3) {
+        const textToDecrypt = words[1];
+        const shift = parseInt(words[2]);
+        if (!isNaN(shift)) {
+            return decryptCaesarCipher(textToDecrypt, shift);
+        } else {
+            return "Invalid shift value. Please provide a number.";
+        }
+    }
+
+    // Simple bot responses for demonstration
+    const responses = {
+        "hi": "Hello!",
+        "how are you": "I'm a bot, so I'm always good.",
+        "bye": "Goodbye!",
+        "thanks": "No problem if you have question please ask me.",
+        "thank you": "No problem if you have question please ask me.",
+        "do you know cambodia?": "Yes I know.\nCambodia, officially the Kingdom of Cambodia,is a country in Southeast Asia on the Indochinese Peninsula, spanning an area of 181,035 square kilometres (69,898 square miles), bordered by Thailand to the northwest, Laos to the north, Vietnam to the east, and the Gulf of Thailand to the southwest. The capital and most populous city is Phnom Penh.",
+        "សួស្តី":"បាទ​! សួស្តី",
+        "តើអ្នកសុខសប្បាយទេ?":"បាទ! ខ្ញុំសុខសប្បាយទេ ចោះអ្នកវិញ។",
+        "សុខសប្បាយ":"អូ! ពិតជាល្អណាស់",
+    };
+
+    return responses[input] || "I don't understand that.";
+}
+
+function encryptCaesarCipher(text, shift) {
+    const shiftNormalized = shift % 26;
+    let result = "";
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char.match(/[a-z]/)) {
+            const code = text.charCodeAt(i);
+            const shiftedCode = ((code - 97 + shiftNormalized + 26) % 26) + 97;
+            result += String.fromCharCode(shiftedCode);
+        } else {
+            result += char;
+        }
+    }
+    return `Encrypted text: ${result}`;
+}
+
+function decryptCaesarCipher(text, shift) {
+    const shiftNormalized = shift % 26;
+    let result = "";
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (char.match(/[a-z]/)) {
+            const code = text.charCodeAt(i);
+            const shiftedCode = ((code - 97 - shiftNormalized + 26) % 26 + 26) % 26 + 97;
+            result += String.fromCharCode(shiftedCode);
+        } else {
+            result += char;
+        }
+    }
+    return `Decrypted text: ${result}`;
+}
+
+function typeMessage(message, sender) {
+    var chatBox = document.getElementById("chat-box");
+    var messageElement = document.createElement("div");
+    messageElement.className = "message " + sender;
+
+    var imgElement = document.createElement("img");
+    imgElement.src = sender === "user" ? "./user.png" : "./chatbot.png";
+
+    var textElement = document.createElement("div");
+    textElement.className = "text";
+    
+    messageElement.appendChild(imgElement);
+    messageElement.appendChild(textElement);
+    chatBox.appendChild(messageElement);
+
+    let index = 0;
+
+    function typeNextLetter() {
+        if (index < message.length) {
+            let char = message[index];
+            if (char === "\n") {
+                textElement.appendChild(document.createElement("br"));
+            } else if (char === " ") {
+                textElement.innerHTML += "&nbsp;";
+            } else {
+                textElement.innerHTML += char;
+            }
+            index++;
+            setTimeout(typeNextLetter, 50); // Adjust typing speed here
+        } else {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+    
+    typeNextLetter();
 }
