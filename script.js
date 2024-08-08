@@ -35,6 +35,11 @@ function encryptMessage() {
     const message = document.getElementById('message').value;
     
     const n = p * q;
+    if (n < 2525) {
+        document.getElementById('value-n').innerText = "N is too small. Please choose larger prime numbers.";
+        document.getElementById('encrypted-message').innerText = "";
+        return;
+    }
     document.getElementById('value-n').innerText = n;
 
     const encrypted = message.split("").map(char => {
@@ -52,6 +57,10 @@ function decryptMessage() {
     const encrypted = document.getElementById('encrypted-message').innerText.split(" ").map(Number);
     
     const n = p * q;
+    if (n < 2525) {
+        document.getElementById('decrypted-message').innerText = "N is too small. Cannot decrypt.";
+        return;
+    }
     const phi = (p - 1) * (q - 1);
     const d = modInverse(e, phi);
     
