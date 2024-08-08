@@ -1,0 +1,59 @@
+/* Reset some default styles */
+body, h1, p, a {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+body {
+    background-color: #f4f4f4;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #1abc9c; /* Teal background color */
+    color: #ffffff; /* White font color */
+    font-family: 'Helvetica Neue', sans-serif; /* Change the font family */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: justify;
+}
+
+h1 {
+    color: #ecf0f1; /* Light gray color for the heading */
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Georgia', serif; /* A different font for the heading */
+}
+
+p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    color: #ecf0f1; /* Light gray color for paragraphs */
+}
+
+p span {
+    font-weight: bold;
+    color: #e74c3c; /* A red color for emphasis */
+}
+
+a {
+    display: block;
+    font-size: 20px;
+    color: black; /* A darker blue color for links */
+    text-decoration: none;
+    margin-top: 10px;
+    text-align: center;
+    transition: color 0.3s ease;
+    font-family: 'Arial', sans-serif; /* Ensuring links use Arial */
+}
+
+a:hover {
+    color: #1c6f96; /* Even darker blue on hover */
+}
