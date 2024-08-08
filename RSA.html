@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Encryption & Decryption</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #14161a;
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        input[type="number"], input[type="text"] {
+            width: 200px;
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .encrypt-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .decrypt-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        .reset-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>RSA Encryption & Decryption</h1>
+    <p>Where n is equal to n = p * q, so we add the values to p and q and then to n.</p>
+    <div>
+        <p>This is value n: <span id="value-n">3233</span></p>
+        <label for="p-value">Enter p value:</label>
+        <input type="number" id="p-value" value="61">
+        <br>
+        <label for="q-value">Enter q value:</label>
+        <input type="number" id="q-value" value="53">
+        <br>
+        <label for="e-value">Enter e value:</label>
+        <input type="number" id="e-value" value="17">
+        <br>
+        <input type="text" id="message" placeholder="Enter your message">
+        <br>
+        <button class="encrypt-btn" onclick="encryptMessage()">Encrypt</button>
+        <button class="decrypt-btn" onclick="decryptMessage()">Decrypt</button>
+        <button class="reset-btn" onclick="resetForm()">Reset</button>
+    </div>
+    <div>
+        <p>Encrypted Message: <span id="encrypted-message"></span></p>
+        <p>Decrypted Message: <span id="decrypted-message"></span></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
