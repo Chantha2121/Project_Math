@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 50px auto;
     padding: 20px;
     background-color: #1abc9c; /* Teal background color */
@@ -56,4 +56,7 @@ a {
 
 a:hover {
     color: #1c6f96; /* Even darker blue on hover */
+}
+.team p{
+    text-align: center;
 }
