@@ -74,15 +74,21 @@
         }
 
         function lettersToNumber(letters) {
-            let first = letters.charCodeAt(0) - 'A'.charCodeAt(0); // Convert first letter
-            let second = letters.charCodeAt(1) - 'A'.charCodeAt(0); // Convert second letter
-            return first * 100 + second;
+            let num = 0;
+            for (let i = 0; i < letters.length; i++) {
+                num = num * 26 + (letters.charCodeAt(i) - 'A'.charCodeAt(0));
+            }
+            return num;
         }
 
         function numberToLetters(number) {
-            let first = String.fromCharCode(Math.floor(number / 100) + 'A'.charCodeAt(0));
-            let second = String.fromCharCode(number % 100 + 'A'.charCodeAt(0));
-            return first + second;
+            let letters = '';
+            while (number > 0) {
+                let charCode = number % 26 + 'A'.charCodeAt(0);
+                letters = String.fromCharCode(charCode) + letters;
+                number = Math.floor(number / 26);
+            }
+            return letters.padStart(2, 'A');  // Ensure two letters
         }
 
         function encryptRSA(message, n, e) {
@@ -91,7 +97,7 @@
                 let block = message.substring(i, i + 2);
                 let numericValue = lettersToNumber(block);
                 let encryptedValue = modExp(numericValue, e, n);
-                encryptedBlocks.push(encryptedValue);
+                encryptedBlocks.push(encryptedValue.toString().padStart(4, '0')); // Pad to ensure 4 digits
             }
             return encryptedBlocks;
         }
@@ -99,7 +105,7 @@
         function decryptRSA(encryptedBlocks, n, d) {
             let decryptedMessage = "";
             encryptedBlocks.forEach(block => {
-                let decryptedValue = modExp(block, d, n);
+                let decryptedValue = modExp(parseInt(block), d, n);
                 decryptedMessage += numberToLetters(decryptedValue);
             });
             return decryptedMessage;
