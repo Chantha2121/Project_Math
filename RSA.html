@@ -74,42 +74,51 @@
         }
 
         function lettersToNumber(letters) {
-            let num = 0;
-            for (let i = 0; i < letters.length; i++) {
-                num = num * 26 + (letters.charCodeAt(i) - 'A'.charCodeAt(0));
-            }
-            return num;
-        }
+    let num = 0;
+    for (let i = 0; i < letters.length; i++) {
+        num = num * 26 + (letters.charCodeAt(i) - 'A'.charCodeAt(0));
+    }
+    return num;
+}
 
-        function numberToLetters(number) {
-            let letters = '';
-            while (number > 0) {
-                let charCode = number % 26 + 'A'.charCodeAt(0);
-                letters = String.fromCharCode(charCode) + letters;
-                number = Math.floor(number / 26);
-            }
-            return letters.padStart(2, 'A');  // Ensure two letters
-        }
+function numberToLetters(number) {
+    let letters = '';
+    while (number > 0) {
+        let charCode = number % 26 + 'A'.charCodeAt(0);
+        letters = String.fromCharCode(charCode) + letters;
+        number = Math.floor(number / 26);
+    }
+    return letters.padStart(2, 'A');  // Ensure two letters
+}
 
-        function encryptRSA(message, n, e) {
-            let encryptedBlocks = [];
-            for (let i = 0; i < message.length; i += 2) {
-                let block = message.substring(i, i + 2);
-                let numericValue = lettersToNumber(block);
-                let encryptedValue = modExp(numericValue, e, n);
-                encryptedBlocks.push(encryptedValue.toString().padStart(4, '0')); // Pad to ensure 4 digits
-            }
-            return encryptedBlocks;
-        }
+function encryptRSA(message, n, e) {
+    // Convert message to uppercase and pad with "X" if needed
+    message = message.toUpperCase();
+    if (message.length % 2 !== 0) {
+        message += 'X';
+    }
 
-        function decryptRSA(encryptedBlocks, n, d) {
-            let decryptedMessage = "";
-            encryptedBlocks.forEach(block => {
-                let decryptedValue = modExp(parseInt(block), d, n);
-                decryptedMessage += numberToLetters(decryptedValue);
-            });
-            return decryptedMessage;
-        }
+    let encryptedBlocks = [];
+    for (let i = 0; i < message.length; i += 2) {
+        let block = message.substring(i, i + 2);
+        let numericValue = lettersToNumber(block);
+        let encryptedValue = modExp(numericValue, e, n);
+        encryptedBlocks.push(encryptedValue.toString().padStart(4, '0')); // Pad to ensure 4 digits
+    }
+    return encryptedBlocks;
+}
+
+function decryptRSA(encryptedBlocks, n, d) {
+    let decryptedMessage = "";
+    encryptedBlocks.forEach(block => {
+        let decryptedValue = modExp(parseInt(block), d, n);
+        decryptedMessage += numberToLetters(decryptedValue);
+    });
+
+    // Remove any padding character if it was added
+    return decryptedMessage.replace(/X+$/, '');
+}
+
 
         function encryptMessage() {
             const p = parseInt(document.getElementById('p-value').value);
